@@ -42,6 +42,24 @@ final class PlayerControlsViewModel {
         String(format: "%.1fx", playerService.rate)
     }
 
+    func playTest() {
+        guard let path = Bundle.main.path(forResource: "test", ofType: "wav") else {
+            return
+        }
+        let model = "gpt-3.5-turbo"
+        guard let audioReq = AudioRequest.init(
+            url: "https://dev.chattan.maiseed.com.cn/api/v2/messages",
+            filePath: path,
+            fileFieldName: "audio",
+            params: [
+                "voice": "onyx",
+                "voice_stream": true,
+                "conversation": "{\"model\": \"\(model)\"}",
+            ]
+        ).request else { return }
+        playerService.play(req: audioReq)
+    }
+
     init(playerService: AudioPlayerService) {
         self.playerService = playerService
         self.playerService.delegate.add(delegate: self)

@@ -6,6 +6,8 @@
 import AVFoundation
 
 final class FileAudioSource: NSObject, CoreAudioStreamSource {
+    var urlRequest: URLRequest?
+
     weak var delegate: AudioStreamSourceDelegate?
 
     var underlyingQueue: DispatchQueue
