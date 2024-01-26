@@ -6,6 +6,8 @@
 import AudioToolbox
 import AVFoundation
 
+
+
 public struct AudioEntryId: Equatable {
     internal var unique = UUID()
     public var id: String
@@ -58,8 +60,16 @@ internal class AudioEntry {
     private let source: CoreAudioStreamSource
     private let outputAudioFormat: AVAudioFormat
 
-    init(source: CoreAudioStreamSource, entryId: AudioEntryId, outputAudioFormat: AVAudioFormat) {
+    init(
+        source: CoreAudioStreamSource,
+        entryId: AudioEntryId,
+        outputAudioFormat: AVAudioFormat,
+        querys: [URLQueryItem] = [],
+        method: AudioRemoteHttpMethod = .GET
+    ) {
         self.source = source
+        self.source.querys = querys
+        self.source.httpMethod = method
         self.outputAudioFormat = outputAudioFormat
         id = entryId
 
@@ -173,3 +183,4 @@ extension AudioEntry: CustomDebugStringConvertible {
         "[AudioEntry: \(id)]"
     }
 }
+

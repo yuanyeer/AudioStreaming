@@ -6,6 +6,12 @@
 import AVFoundation
 import CoreAudio
 
+public enum AudioRemoteHttpMethod: String {
+    case GET = "GET"
+    case POST = "POST"
+}
+
+
 open class AudioPlayer {
     public weak var delegate: AudioPlayerDelegate?
 

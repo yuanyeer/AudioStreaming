@@ -26,6 +26,10 @@ protocol CoreAudioStreamSource: AnyObject {
     /// An `AudioStreamSourceDelegate` object to listen for events from the source
     var delegate: AudioStreamSourceDelegate? { get set }
 
+    var querys: [URLQueryItem] { get set }
+
+    var httpMethod: AudioRemoteHttpMethod { get set }
+
     /// Closes the underlying stream
     func close()
 
@@ -49,3 +53,4 @@ protocol AudioStreamSource: CoreAudioStreamSource {
     /// A `MetadataStreamSource` object that handles the metadata parsing
     var metadataStreamProcessor: MetadataStreamSource { get }
 }
+

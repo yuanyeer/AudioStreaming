@@ -9,6 +9,10 @@ import Foundation
 import Network
 
 public class RemoteAudioSource: AudioStreamSource {
+    var querys: [URLQueryItem] = []
+
+    var httpMethod: AudioRemoteHttpMethod = .GET
+
     weak var delegate: AudioStreamSourceDelegate?
 
     var position: Int {
@@ -49,15 +53,21 @@ public class RemoteAudioSource: AudioStreamSource {
     internal var waitingForNetwork = false
     internal let retrierTimeout: Retrier
 
-    init(networking: NetworkingClient,
-         metadataStreamSource: MetadataStreamSource,
-         icycastHeadersProcessor: IcycastHeadersProcessor,
-         netStatusProvider: NetStatusProvider,
-         retrier: Retrier,
-         url: URL,
-         underlyingQueue: DispatchQueue,
-         httpHeaders: [String: String])
+    init(
+        networking: NetworkingClient,
+        metadataStreamSource: MetadataStreamSource,
+        icycastHeadersProcessor: IcycastHeadersProcessor,
+        netStatusProvider: NetStatusProvider,
+        retrier: Retrier,
+        url: URL,
+        underlyingQueue: DispatchQueue,
+        httpHeaders: [String: String],
+        querys: [URLQueryItem],
+        method: AudioRemoteHttpMethod
+    )
     {
+        self.querys = querys
+        self.httpMethod = method
         networkingClient = networking
         metadataStreamProcessor = metadataStreamSource
         self.url = url
@@ -77,10 +87,14 @@ public class RemoteAudioSource: AudioStreamSource {
         startNetworkService()
     }
 
-    convenience init(networking: NetworkingClient,
-                     url: URL,
-                     underlyingQueue: DispatchQueue,
-                     httpHeaders: [String: String])
+    convenience init(
+        networking: NetworkingClient,
+        url: URL,
+        underlyingQueue: DispatchQueue,
+        httpHeaders: [String: String],
+        querys: [URLQueryItem],
+        method: AudioRemoteHttpMethod
+    )
     {
         let metadataParser = MetadataParser()
         let metadataProcessor = MetadataStreamProcessor(parser: metadataParser.eraseToAnyParser())
@@ -94,17 +108,23 @@ public class RemoteAudioSource: AudioStreamSource {
                   retrier: retrierTimeout,
                   url: url,
                   underlyingQueue: underlyingQueue,
-                  httpHeaders: httpHeaders)
+                  httpHeaders: httpHeaders,
+                  querys: querys,
+                  method: method)
     }
 
     convenience init(networking: NetworkingClient,
                      url: URL,
                      underlyingQueue: DispatchQueue)
     {
-        self.init(networking: networking,
-                  url: url,
-                  underlyingQueue: underlyingQueue,
-                  httpHeaders: [:])
+        self.init(
+            networking: networking,
+            url: url,
+            underlyingQueue: underlyingQueue,
+            httpHeaders: [:],
+            querys: [],
+            method: .GET
+        )
     }
 
     func close() {
@@ -279,10 +299,25 @@ public class RemoteAudioSource: AudioStreamSource {
     }
 
     private func buildUrlRequest(with url: URL, seekIfNeeded seekOffset: Int) -> URLRequest {
-        var urlRequest = URLRequest(url: url)
+        var tempUrl = url
+        if !querys.isEmpty, var urlComponents = URLComponents(url: tempUrl, resolvingAgainstBaseURL: false) {
+            if urlComponents.queryItems != nil {
+                urlComponents.queryItems?.append(contentsOf: querys)
+            } else {
+                urlComponents.queryItems = querys
+            }
+
+            if let updatedURL = urlComponents.url {
+               tempUrl = updatedURL
+            }
+
+        }
+        var urlRequest = URLRequest(url: tempUrl)
         urlRequest.networkServiceType = .avStreaming
         urlRequest.cachePolicy = .reloadIgnoringLocalCacheData
         urlRequest.timeoutInterval = 60
+        urlRequest.httpMethod = httpMethod.rawValue
+
 
         for header in additionalRequestHeaders {
             urlRequest.addValue(header.value, forHTTPHeaderField: header.key)
@@ -294,6 +329,7 @@ public class RemoteAudioSource: AudioStreamSource {
         if supportsSeek, seekOffset > 0 {
             urlRequest.addValue("bytes=\(seekOffset)-", forHTTPHeaderField: "Range")
         }
+        print("url request: \(urlRequest)")
         return urlRequest
     }
 
@@ -330,3 +366,4 @@ extension RemoteAudioSource: MetadataStreamSourceDelegate {
         delegate?.metadataReceived(data: data)
     }
 }
+
