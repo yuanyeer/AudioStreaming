@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		075692ED2B63B01B00A5364A /* test.wav in Resources */ = {isa = PBXBuildFile; fileRef = 075692EC2B63B01B00A5364A /* test.wav */; };
+		075692EF2B63B02500A5364A /* AudioRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075692EE2B63B02500A5364A /* AudioRequest.swift */; };
 		984808A028C0F549001160E6 /* hipjazz.wav in Resources */ = {isa = PBXBuildFile; fileRef = 9848089F28C0F549001160E6 /* hipjazz.wav */; };
 		B5220836256051830086FB3A /* AudioPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5220835256051830086FB3A /* AudioPlayerService.swift */; };
 		B5220948256074910086FB3A /* MulticastDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5220947256074910086FB3A /* MulticastDelegate.swift */; };
@@ -43,6 +45,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		075692EC2B63B01B00A5364A /* test.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = test.wav; sourceTree = "<group>"; };
+		075692EE2B63B02500A5364A /* AudioRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioRequest.swift; sourceTree = "<group>"; };
 		9848089F28C0F549001160E6 /* hipjazz.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = hipjazz.wav; sourceTree = "<group>"; };
 		B5220835256051830086FB3A /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
 		B5220947256074910086FB3A /* MulticastDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MulticastDelegate.swift; sourceTree = "<group>"; };
@@ -134,6 +138,8 @@
 		B5AEDBD32475274C007D8101 /* AudioExample */ = {
 			isa = PBXGroup;
 			children = (
+				075692EE2B63B02500A5364A /* AudioRequest.swift */,
+				075692EC2B63B01B00A5364A /* test.wav */,
 				B5AEDBD42475274C007D8101 /* AppDelegate.swift */,
 				B524D5A8256031DE00F5A88F /* AppCoordinator.swift */,
 				B524D5AA25604E2E00F5A88F /* Services */,
@@ -211,6 +217,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				075692ED2B63B01B00A5364A /* test.wav in Resources */,
 				B524D59C2560176C00F5A88F /* bensound-jazzyfrenchy.mp3 in Resources */,
 				B5AEDBE12475274D007D8101 /* LaunchScreen.storyboard in Resources */,
 				B5AEDBDE2475274D007D8101 /* Assets.xcassets in Resources */,
@@ -229,6 +236,7 @@
 				B524D5A9256031DE00F5A88F /* AppCoordinator.swift in Sources */,
 				B524D5AD25604E4B00F5A88F /* PlaylistItemsService.swift in Sources */,
 				B524D5A32560303000F5A88F /* PlayerViewModel.swift in Sources */,
+				075692EF2B63B02500A5364A /* AudioRequest.swift in Sources */,
 				B5220836256051830086FB3A /* AudioPlayerService.swift in Sources */,
 				B5AEDBD52475274C007D8101 /* AppDelegate.swift in Sources */,
 				B524D5A12560302100F5A88F /* PlayerViewController.swift in Sources */,

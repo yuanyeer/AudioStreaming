@@ -64,12 +64,10 @@ internal class AudioEntry {
         source: CoreAudioStreamSource,
         entryId: AudioEntryId,
         outputAudioFormat: AVAudioFormat,
-        querys: [URLQueryItem] = [],
-        method: AudioRemoteHttpMethod = .GET
+        urlRequest: URLRequest?
     ) {
         self.source = source
-        self.source.querys = querys
-        self.source.httpMethod = method
+        self.source.urlRequest = urlRequest
         self.outputAudioFormat = outputAudioFormat
         id = entryId
 

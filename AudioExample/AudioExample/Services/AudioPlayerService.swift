@@ -56,6 +56,13 @@ final class AudioPlayerService {
         player.play(url: url)
     }
 
+    func play(req: URLRequest) {
+        activateAudioSession()
+        if let url = req.url {
+            player.play(url: url, urlRequest: req)
+        }
+    }    
+
     func queue(url: URL) {
         activateAudioSession()
         player.queue(url: url)

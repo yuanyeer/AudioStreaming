@@ -13,6 +13,8 @@ class PlayerControlsViewController: UIViewController {
     private lazy var stopButton = UIButton(type: .custom)
     private lazy var muteButton = UIButton()
 
+    private lazy var testButton = UIButton()
+
     private lazy var slider = UISlider()
     private lazy var elapsedPlayTimeLabel = UILabel()
     private lazy var remainingPlayTimeLabel = UILabel()
@@ -152,6 +154,17 @@ class PlayerControlsViewController: UIViewController {
             controlsAndSliderStack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             controlsAndSliderStack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
+        testButton.setTitle("test-post", for: .normal)
+        testButton.setTitleColor(.black, for: .normal)
+        view.addSubview(testButton)
+        testButton.backgroundColor = .green
+        view.bringSubviewToFront(testButton)
+        testButton.frame = .init(x: 50, y: 100, width: 100, height: 100)
+        testButton.addTarget(self, action: #selector(testPost), for: .touchUpInside)
+    }
+
+    @objc func testPost() {
+        viewModel.playTest()
     }
 
     private func setupBinding() {

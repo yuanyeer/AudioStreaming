@@ -9,9 +9,7 @@ import Foundation
 import Network
 
 public class RemoteAudioSource: AudioStreamSource {
-    var querys: [URLQueryItem] = []
-
-    var httpMethod: AudioRemoteHttpMethod = .GET
+    var urlRequest: URLRequest?
 
     weak var delegate: AudioStreamSourceDelegate?
 
@@ -62,12 +60,10 @@ public class RemoteAudioSource: AudioStreamSource {
         url: URL,
         underlyingQueue: DispatchQueue,
         httpHeaders: [String: String],
-        querys: [URLQueryItem],
-        method: AudioRemoteHttpMethod
+        urlRequest: URLRequest? = nil
     )
     {
-        self.querys = querys
-        self.httpMethod = method
+        self.urlRequest = urlRequest
         networkingClient = networking
         metadataStreamProcessor = metadataStreamSource
         self.url = url
@@ -92,8 +88,7 @@ public class RemoteAudioSource: AudioStreamSource {
         url: URL,
         underlyingQueue: DispatchQueue,
         httpHeaders: [String: String],
-        querys: [URLQueryItem],
-        method: AudioRemoteHttpMethod
+        urlRequest: URLRequest? = nil
     )
     {
         let metadataParser = MetadataParser()
@@ -109,8 +104,7 @@ public class RemoteAudioSource: AudioStreamSource {
                   url: url,
                   underlyingQueue: underlyingQueue,
                   httpHeaders: httpHeaders,
-                  querys: querys,
-                  method: method)
+                  urlRequest: urlRequest)
     }
 
     convenience init(networking: NetworkingClient,
@@ -121,9 +115,7 @@ public class RemoteAudioSource: AudioStreamSource {
             networking: networking,
             url: url,
             underlyingQueue: underlyingQueue,
-            httpHeaders: [:],
-            querys: [],
-            method: .GET
+            httpHeaders: [:]
         )
     }
 
@@ -300,37 +292,38 @@ public class RemoteAudioSource: AudioStreamSource {
 
     private func buildUrlRequest(with url: URL, seekIfNeeded seekOffset: Int) -> URLRequest {
         var tempUrl = url
-        if !querys.isEmpty, var urlComponents = URLComponents(url: tempUrl, resolvingAgainstBaseURL: false) {
-            if urlComponents.queryItems != nil {
-                urlComponents.queryItems?.append(contentsOf: querys)
-            } else {
-                urlComponents.queryItems = querys
-            }
-
-            if let updatedURL = urlComponents.url {
-               tempUrl = updatedURL
-            }
-
+//        if !querys.isEmpty, var urlComponents = URLComponents(url: tempUrl, resolvingAgainstBaseURL: false) {
+//            if urlComponents.queryItems != nil {
+//                urlComponents.queryItems?.append(contentsOf: querys)
+//            } else {
+//                urlComponents.queryItems = querys
+//            }
+//
+//            if let updatedURL = urlComponents.url {
+//               tempUrl = updatedURL
+//            }
+//
+//        }
+        var req = URLRequest(url: tempUrl)
+        if let value = urlRequest {
+            req = value
         }
-        var urlRequest = URLRequest(url: tempUrl)
-        urlRequest.networkServiceType = .avStreaming
-        urlRequest.cachePolicy = .reloadIgnoringLocalCacheData
-        urlRequest.timeoutInterval = 60
-        urlRequest.httpMethod = httpMethod.rawValue
-
+        req.networkServiceType = .avStreaming
+        req.cachePolicy = .reloadIgnoringLocalCacheData
+        req.timeoutInterval = 60
 
         for header in additionalRequestHeaders {
-            urlRequest.addValue(header.value, forHTTPHeaderField: header.key)
+            req.addValue(header.value, forHTTPHeaderField: header.key)
         }
-        urlRequest.addValue("*/*", forHTTPHeaderField: "Accept")
-        urlRequest.addValue("1", forHTTPHeaderField: "Icy-MetaData")
-        urlRequest.addValue("identity", forHTTPHeaderField: "Accept-Encoding")
+        req.addValue("*/*", forHTTPHeaderField: "Accept")
+        req.addValue("1", forHTTPHeaderField: "Icy-MetaData")
+        req.addValue("identity", forHTTPHeaderField: "Accept-Encoding")
 
         if supportsSeek, seekOffset > 0 {
-            urlRequest.addValue("bytes=\(seekOffset)-", forHTTPHeaderField: "Range")
+            req.addValue("bytes=\(seekOffset)-", forHTTPHeaderField: "Range")
         }
-        print("url request: \(urlRequest)")
-        return urlRequest
+        print("url request: \(req)")
+        return req
     }
 
     private func retryOnError() {

@@ -9,8 +9,7 @@ protocol AudioEntryProviding {
     func provideAudioEntry(
         url: URL,
         headers: [String: String],
-        querys: [URLQueryItem],
-        method: AudioRemoteHttpMethod
+        urlRequest: URLRequest?
     ) -> AudioEntry
     func provideAudioEntry(url: URL, headers: [String: String]) -> AudioEntry
     func provideAudioEntry(url: URL) -> AudioEntry
@@ -33,21 +32,17 @@ final class AudioEntryProvider: AudioEntryProviding {
     func provideAudioEntry(
         url: URL,
         headers: [String: String],
-        querys: [URLQueryItem],
-        method: AudioRemoteHttpMethod
+        urlRequest: URLRequest?
     ) -> AudioEntry {
         let source = self.source(
             for: url,
             headers: headers,
-            querys: querys,
-            method: method
+            urlRequest: urlRequest
         )
         return AudioEntry(
             source: source,
             entryId: AudioEntryId(id: url.absoluteString),
-            outputAudioFormat: outputAudioFormat,
-            querys: querys,
-            method: method
+            outputAudioFormat: outputAudioFormat, urlRequest: urlRequest
         )
     }
 
@@ -55,11 +50,12 @@ final class AudioEntryProvider: AudioEntryProviding {
         url: URL,
         headers: [String: String]
     ) -> AudioEntry {
-        let source = self.source(for: url, headers: headers, querys: [], method: .GET)
+        let source = self.source(for: url, headers: headers, urlRequest: nil)
         return AudioEntry(
             source: source,
             entryId: AudioEntryId(id: url.absoluteString),
-            outputAudioFormat: outputAudioFormat
+            outputAudioFormat: outputAudioFormat,
+            urlRequest: nil
         )
     }
 
@@ -70,16 +66,14 @@ final class AudioEntryProvider: AudioEntryProviding {
     func provideAudioSource(
         url: URL,
         headers: [String: String],
-        querys: [URLQueryItem],
-        method: AudioRemoteHttpMethod
+        urlRequest: URLRequest?
     ) -> AudioStreamSource {
         RemoteAudioSource(
             networking: networkingClient,
             url: url,
             underlyingQueue: underlyingQueue,
             httpHeaders: headers,
-            querys: querys,
-            method: method
+            urlRequest: urlRequest
         )
     }
 
@@ -90,8 +84,7 @@ final class AudioEntryProvider: AudioEntryProviding {
     func source(
         for url: URL,
         headers: [String: String],
-        querys: [URLQueryItem],
-        method: AudioRemoteHttpMethod
+        urlRequest: URLRequest?
     ) -> CoreAudioStreamSource {
         guard !url.isFileURL else {
             return provideFileAudioSource(url: url)
@@ -99,8 +92,7 @@ final class AudioEntryProvider: AudioEntryProviding {
         return provideAudioSource(
             url: url,
             headers: headers,
-            querys: querys,
-            method: method
+            urlRequest: urlRequest
         )
     }
 }

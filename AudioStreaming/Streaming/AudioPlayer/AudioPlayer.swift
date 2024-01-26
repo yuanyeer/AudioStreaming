@@ -185,12 +185,24 @@ open class AudioPlayer {
         play(url: url, headers: [:])
     }
 
+    public func play(url: URL, urlRequest: URLRequest) {
+        play(url: url, headers: [:], urlRequest: urlRequest)
+    }
+
     /// Starts the audio playback for the given URL
     ///
     /// - parameter url: A `URL` specifying the audio context to be played.
     /// - parameter headers: A `Dictionary` specifying any additional headers to be pass to the network request.
-    public func play(url: URL, headers: [String: String]) {
-        let audioEntry = entryProvider.provideAudioEntry(url: url, headers: headers)
+    public func play(
+        url: URL,
+        headers: [String: String],
+        urlRequest: URLRequest? = nil
+    ) {
+        let audioEntry = entryProvider.provideAudioEntry(
+            url: url,
+            headers: headers,
+            urlRequest: urlRequest
+        )
         audioEntry.delegate = self
 
         checkRenderWaitingAndNotifyIfNeeded()
