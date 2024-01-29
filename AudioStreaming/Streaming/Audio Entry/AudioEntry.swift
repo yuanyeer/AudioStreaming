@@ -153,10 +153,10 @@ internal class AudioEntry {
 }
 
 extension AudioEntry: AudioStreamSourceDelegate {
-    func dataAvailable(source: CoreAudioStreamSource, data: Data) {
-        delegate?.dataAvailable(source: source, data: data)
+    func dataAvailable(source: CoreAudioStreamSource, data: Data, response: HTTPURLResponse?) {
+        delegate?.dataAvailable(source: source, data: data, response: response)
     }
-
+    
     func errorOccurred(source: CoreAudioStreamSource, error: Error) {
         delegate?.errorOccurred(source: source, error: error)
     }

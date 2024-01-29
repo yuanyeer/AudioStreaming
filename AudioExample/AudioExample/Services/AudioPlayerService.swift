@@ -155,6 +155,17 @@ final class AudioPlayerService {
 }
 
 extension AudioPlayerService: AudioPlayerDelegate {
+    func audioPlayerUnexpectedError(
+        player: AudioStreaming.AudioPlayer,
+        error: AudioStreaming.AudioPlayerError,
+        data: Data?
+    ) {
+        if let value = data {
+            print("播放出错：\(String(data: value, encoding: .utf8))")
+        }
+        delegate.invoke(invocation: { $0.errorOccurred(error: error) })
+    }
+    
     func audioPlayerDidStartPlaying(player _: AudioPlayer, with _: AudioEntryId) {
         delegate.invoke(invocation: { $0.didStartPlaying() })
     }
@@ -171,11 +182,8 @@ extension AudioPlayerService: AudioPlayerDelegate {
                                      progress _: Double,
                                      duration _: Double)
     {
+        print("播放完成：\(player.response)")
         delegate.invoke(invocation: { $0.didStopPlaying() })
-    }
-
-    func audioPlayerUnexpectedError(player _: AudioPlayer, error: AudioPlayerError) {
-        delegate.invoke(invocation: { $0.errorOccurred(error: error) })
     }
 
     func audioPlayerDidCancel(player _: AudioPlayer, queuedItems _: [AudioEntryId]) {}

@@ -8,7 +8,7 @@ import Foundation
 
 protocol AudioStreamSourceDelegate: AnyObject {
     /// Indicates that there's data available
-    func dataAvailable(source: CoreAudioStreamSource, data: Data)
+    func dataAvailable(source: CoreAudioStreamSource, data: Data, response: HTTPURLResponse?)
     /// Indicates an error occurred
     func errorOccurred(source: CoreAudioStreamSource, error: Error)
     /// Indicates end of file has occurred

@@ -105,7 +105,7 @@ final class FileAudioSource: NSObject, CoreAudioStreamSource {
         let read = inputStream.read(buffer, maxLength: readSize)
         if read > 0 {
             let data = Data(bytes: buffer, count: read)
-            delegate?.dataAvailable(source: self, data: data)
+            delegate?.dataAvailable(source: self, data: data, response: nil)
             position += read
         } else {
             position += getCurrentOffsetFromStream()
