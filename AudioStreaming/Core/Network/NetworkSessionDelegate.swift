@@ -10,7 +10,7 @@ internal final class NetworkSessionDelegate: NSObject, URLSessionDataDelegate {
 
     internal func stream(for task: URLSessionTask) -> NetworkDataStream? {
         guard let taskProvider = taskProvider else {
-            assertionFailure("couldn't found taskProvider")
+            print("error: couldn't found taskProvider")
             return nil
         }
         return taskProvider.dataStream(for: task)
