@@ -6,6 +6,12 @@
 import AVFoundation
 import CoreAudio
 
+public enum AudioRemoteHttpMethod: String {
+    case GET = "GET"
+    case POST = "POST"
+}
+
+
 open class AudioPlayer {
     public weak var delegate: AudioPlayerDelegate?
 
@@ -13,6 +19,8 @@ open class AudioPlayer {
         get { playerContext.muted.value }
         set { playerContext.muted.write { $0 = newValue } }
     }
+
+    public var response: HTTPURLResponse?
 
     /// The volume of the audio
     ///
@@ -179,12 +187,24 @@ open class AudioPlayer {
         play(url: url, headers: [:])
     }
 
+    public func play(url: URL, urlRequest: URLRequest) {
+        play(url: url, headers: [:], urlRequest: urlRequest)
+    }
+
     /// Starts the audio playback for the given URL
     ///
     /// - parameter url: A `URL` specifying the audio context to be played.
     /// - parameter headers: A `Dictionary` specifying any additional headers to be pass to the network request.
-    public func play(url: URL, headers: [String: String]) {
-        let audioEntry = entryProvider.provideAudioEntry(url: url, headers: headers)
+    public func play(
+        url: URL,
+        headers: [String: String],
+        urlRequest: URLRequest? = nil
+    ) {
+        let audioEntry = entryProvider.provideAudioEntry(
+            url: url,
+            headers: headers,
+            urlRequest: urlRequest
+        )
         audioEntry.delegate = self
 
         checkRenderWaitingAndNotifyIfNeeded()
@@ -195,7 +215,7 @@ open class AudioPlayer {
             do {
                 try self.startEngineIfNeeded()
             } catch {
-                self.raiseUnexpected(error: .audioSystemError(.engineFailure))
+                self.raiseUnexpected(error: .audioSystemError(.engineFailure), data: nil)
             }
         }
 
@@ -420,7 +440,7 @@ open class AudioPlayer {
                 self.playerRenderProcessor.attachCallback(on: unit, audioFormat: self.outputAudioFormat)
             case let .failure(error):
                 assertionFailure("couldn't create player unit: \(error)")
-                self.raiseUnexpected(error: .audioSystemError(.playerNotFound))
+                self.raiseUnexpected(error: .audioSystemError(.playerNotFound), data: nil)
             }
         }
     }
@@ -453,7 +473,7 @@ open class AudioPlayer {
                     self.processSource()
                 }
             case let .raiseError(error):
-                self.raiseUnexpected(error: error)
+                self.raiseUnexpected(error: error, data: nil)
             }
         }
     }
@@ -539,7 +559,7 @@ open class AudioPlayer {
             try player.auAudioUnit.startHardware()
         } catch {
             stopEngine(reason: .error)
-            raiseUnexpected(error: .audioSystemError(.playerStartError))
+            raiseUnexpected(error: .audioSystemError(.playerStartError), data: nil)
         }
     }
 
@@ -725,19 +745,24 @@ open class AudioPlayer {
         }
     }
 
-    private func raiseUnexpected(error: AudioPlayerError) {
+    private func raiseUnexpected(error: AudioPlayerError, data: Data?) {
         playerContext.setInternalState(to: .error)
         // todo raise on main thread from playback thread
         asyncOnMain { [weak self] in
             guard let self = self else { return }
-            self.delegate?.audioPlayerUnexpectedError(player: self, error: error)
+            self.delegate?.audioPlayerUnexpectedError(
+                player: self,
+                error: error,
+                data: data
+            )
         }
         Logger.error("Error: %@", category: .generic, args: error.localizedDescription)
     }
 }
 
 extension AudioPlayer: AudioStreamSourceDelegate {
-    func dataAvailable(source: CoreAudioStreamSource, data: Data) {
+    func dataAvailable(source: CoreAudioStreamSource, data: Data, response: HTTPURLResponse?) {
+        self.response = response
         guard let readingEntry = playerContext.audioReadingEntry, readingEntry.has(same: source) else {
             return
         }
@@ -746,7 +771,7 @@ extension AudioPlayer: AudioStreamSourceDelegate {
             let openFileStreamStatus = fileStreamProcessor.openFileStream(with: source.audioFileHint)
             guard openFileStreamStatus == noErr else {
                 let streamError = AudioFileStreamError(status: openFileStreamStatus)
-                raiseUnexpected(error: .audioSystemError(.fileStreamError(streamError)))
+                raiseUnexpected(error: .audioSystemError(.fileStreamError(streamError)), data: nil)
                 return
             }
         }
@@ -756,7 +781,7 @@ extension AudioPlayer: AudioStreamSourceDelegate {
             guard streamBytesStatus == noErr else {
                 if let playingEntry = playerContext.audioPlayingEntry, playingEntry.has(same: source) {
                     let streamBytesError = AudioFileStreamError(status: streamBytesStatus)
-                    raiseUnexpected(error: .streamParseBytesFailure(streamBytesError))
+                    raiseUnexpected(error: .streamParseBytesFailure(streamBytesError), data: data)
                 }
                 return
             }
@@ -769,7 +794,7 @@ extension AudioPlayer: AudioStreamSourceDelegate {
 
     func errorOccurred(source: CoreAudioStreamSource, error: Error) {
         guard let entry = playerContext.audioReadingEntry, entry.has(same: source) else { return }
-        raiseUnexpected(error: .networkError(.failure(error)))
+        raiseUnexpected(error: .networkError(.failure(error)), data: nil)
     }
 
     func endOfFileOccurred(source: CoreAudioStreamSource) {

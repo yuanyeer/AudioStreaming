@@ -24,7 +24,7 @@ public protocol AudioPlayerDelegate: AnyObject {
                                      duration: Double)
     /// Tells the delegate when an unexpected error occurred.
     /// - note: Probably a good time to recreate the player when this occurs
-    func audioPlayerUnexpectedError(player: AudioPlayer, error: AudioPlayerError)
+    func audioPlayerUnexpectedError(player: AudioPlayer, error: AudioPlayerError, data: Data?)
 
     /// Tells the delegate when cancel occurs, usually due to a stop or play (new source)
     func audioPlayerDidCancel(player: AudioPlayer, queuedItems: [AudioEntryId])

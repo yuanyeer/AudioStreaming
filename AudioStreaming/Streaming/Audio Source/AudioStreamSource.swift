@@ -8,7 +8,7 @@ import Foundation
 
 protocol AudioStreamSourceDelegate: AnyObject {
     /// Indicates that there's data available
-    func dataAvailable(source: CoreAudioStreamSource, data: Data)
+    func dataAvailable(source: CoreAudioStreamSource, data: Data, response: HTTPURLResponse?)
     /// Indicates an error occurred
     func errorOccurred(source: CoreAudioStreamSource, error: Error)
     /// Indicates end of file has occurred
@@ -25,6 +25,8 @@ protocol CoreAudioStreamSource: AnyObject {
 
     /// An `AudioStreamSourceDelegate` object to listen for events from the source
     var delegate: AudioStreamSourceDelegate? { get set }
+
+    var urlRequest: URLRequest? { get set }
 
     /// Closes the underlying stream
     func close()
@@ -49,3 +51,4 @@ protocol AudioStreamSource: CoreAudioStreamSource {
     /// A `MetadataStreamSource` object that handles the metadata parsing
     var metadataStreamProcessor: MetadataStreamSource { get }
 }
+

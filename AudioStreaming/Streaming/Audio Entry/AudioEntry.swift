@@ -6,6 +6,8 @@
 import AudioToolbox
 import AVFoundation
 
+
+
 public struct AudioEntryId: Equatable {
     internal var unique = UUID()
     public var id: String
@@ -58,8 +60,14 @@ internal class AudioEntry {
     private let source: CoreAudioStreamSource
     private let outputAudioFormat: AVAudioFormat
 
-    init(source: CoreAudioStreamSource, entryId: AudioEntryId, outputAudioFormat: AVAudioFormat) {
+    init(
+        source: CoreAudioStreamSource,
+        entryId: AudioEntryId,
+        outputAudioFormat: AVAudioFormat,
+        urlRequest: URLRequest?
+    ) {
         self.source = source
+        self.source.urlRequest = urlRequest
         self.outputAudioFormat = outputAudioFormat
         id = entryId
 
@@ -145,10 +153,10 @@ internal class AudioEntry {
 }
 
 extension AudioEntry: AudioStreamSourceDelegate {
-    func dataAvailable(source: CoreAudioStreamSource, data: Data) {
-        delegate?.dataAvailable(source: source, data: data)
+    func dataAvailable(source: CoreAudioStreamSource, data: Data, response: HTTPURLResponse?) {
+        delegate?.dataAvailable(source: source, data: data, response: response)
     }
-
+    
     func errorOccurred(source: CoreAudioStreamSource, error: Error) {
         delegate?.errorOccurred(source: source, error: error)
     }
@@ -173,3 +181,4 @@ extension AudioEntry: CustomDebugStringConvertible {
         "[AudioEntry: \(id)]"
     }
 }
+
