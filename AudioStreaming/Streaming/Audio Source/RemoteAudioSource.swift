@@ -26,6 +26,8 @@ public class RemoteAudioSource: AudioStreamSource {
     private let networkingClient: NetworkingClient
     private var streamRequest: NetworkDataStream?
 
+    private var httpResponse: HTTPURLResponse?
+
     private var additionalRequestHeaders: [String: String]
 
     private var parsedHeaderOutput: HTTPHeaderParserOutput?
@@ -246,16 +248,17 @@ public class RemoteAudioSource: AudioStreamSource {
     private func processAudio(data: Data) -> Int {
         if metadataStreamProcessor.canProcessMetadata {
             let extractedAudioData = metadataStreamProcessor.processMetadata(data: data)
-            delegate?.dataAvailable(source: self, data: extractedAudioData)
+            delegate?.dataAvailable(source: self, data: extractedAudioData, response: self.httpResponse)
             return extractedAudioData.count
         } else {
-            delegate?.dataAvailable(source: self, data: data)
+            delegate?.dataAvailable(source: self, data: data, response: self.httpResponse)
             return data.count
         }
     }
 
     private func parseResponseHeader(response: HTTPURLResponse?) {
         guard let response = response else { return }
+        self.httpResponse = response
         let httpStatusCode = response.statusCode
         let parser = HTTPHeaderParser()
         parsedHeaderOutput = parser.parse(input: response)

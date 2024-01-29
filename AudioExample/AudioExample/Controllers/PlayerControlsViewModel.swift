@@ -48,13 +48,12 @@ final class PlayerControlsViewModel {
         }
         let model = "gpt-3.5-turbo"
         guard let audioReq = AudioRequest.init(
-            url: "https://dev.chattan.maiseed.com.cn/api/v2/messages",
+            url: "https://...",
             filePath: path,
             fileFieldName: "audio",
             params: [
-                "voice": "onyx",
-                "voice_stream": true,
-                "conversation": "{\"model\": \"\(model)\"}",
+                "type": "...",
+                "stream": true,
             ]
         ).request else { return }
         playerService.play(req: audioReq)

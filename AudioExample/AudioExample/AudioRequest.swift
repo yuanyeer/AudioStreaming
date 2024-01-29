@@ -8,9 +8,9 @@
 
 import Foundation
 import MobileCoreServices
+import AudioStreaming
 
 class AudioRequest {
-
     var request: URLRequest?
 
     var params: [String: Any] = [:]
@@ -41,12 +41,12 @@ class AudioRequest {
         request.httpMethod = "POST"
 
         request.setValue(
-            "Bearer e0dd439d9f980622bbe42e1aed7561a9aeef6faefc55b0ed62235459eda8c42d",
+            "token..",
             forHTTPHeaderField: "Authorization"
         )
 
         request.setValue(
-            "MyTan/3.1.00_109 iOS/17.2 Device/iPhone Simulator (x86) Theme/color_replace Resolution/1179x2556 RAM/16.00 ROM/460.43 DId/23e2f9604e07ea2a5b7c9565c1bef2fb InstallId/51eb52abea2d54d2fa8e21f68806968d DeviceName/15pro17.2 Jbv/NIL Almofire/5.8.0 Timezone/Asia%2FShanghai+08:00",
+            "ua",
             forHTTPHeaderField: "User-Agent"
         )
         // 生成boundary字符串，用于multipart/form-data请求
